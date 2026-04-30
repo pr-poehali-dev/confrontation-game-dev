@@ -878,9 +878,354 @@ function TabRating() {
   );
 }
 
+// ─── Настройки ───────────────────────────────────────────────────────────────
+
+function TabSettings() {
+  const [graphics, setGraphics] = useState<'low' | 'medium' | 'high' | 'ultra'>('high');
+  const [sounds, setSounds] = useState(true);
+  const [music, setMusic] = useState(true);
+  const [vibro, setVibro] = useState(true);
+  const [notifications, setNotifications] = useState(true);
+  const [crosshair, setCrosshair] = useState<'dot' | 'cross' | 'circle' | 'dynamic'>('cross');
+  const [sensitivity, setSensitivity] = useState(65);
+  const [aimSens, setAimSens] = useState(40);
+  const [fov, setFov] = useState(90);
+  const [volume, setVolume] = useState(80);
+  const [musicVolume, setMusicVolume] = useState(50);
+  const [lang, setLang] = useState<'ru' | 'en'>('ru');
+  const [theme, setTheme] = useState<'dark' | 'darker'>('dark');
+  const [autoReload, setAutoReload] = useState(true);
+  const [showHitmarkers, setShowHitmarkers] = useState(true);
+  const [showMinimap, setShowMinimap] = useState(true);
+  const [showFps, setShowFps] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
+  const [installState, setInstallState] = useState<'idle' | 'available' | 'installed' | 'unsupported'>('idle');
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setInstallState('available');
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setInstallState('installed');
+    }
+
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const prompt = deferredPrompt as any;
+      prompt.prompt();
+      const result = await prompt.userChoice;
+      if (result.outcome === 'accepted') {
+        setInstallState('installed');
+        setDeferredPrompt(null);
+        showToast('SPECTRE установлен на рабочий стол!');
+      }
+    } else {
+      // Инструкция для ручной установки
+      const ua = navigator.userAgent;
+      const isIOS = /iPad|iPhone|iPod/.test(ua);
+      const isAndroid = /Android/.test(ua);
+      if (isIOS) {
+        showToast('Нажми «Поделиться» → «На экран Домой» в Safari');
+      } else if (isAndroid) {
+        showToast('Нажми ⋮ → «Добавить на главный экран» в браузере');
+      } else {
+        showToast('Нажми ⋮ → «Установить приложение» в Chrome');
+      }
+      setInstallState('unsupported');
+    }
+  };
+
+  const Toggle = ({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) => (
+    <button onClick={() => onChange(!value)}
+      className={`relative w-11 h-6 rounded-full transition-all ${value ? 'bg-[#C8A94A]' : 'bg-[#2A3040]'}`}>
+      <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${value ? 'left-6' : 'left-1'}`} />
+    </button>
+  );
+
+  const SliderRow = ({ label, value, onChange, min = 0, max = 100, unit = '' }: {
+    label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; unit?: string;
+  }) => (
+    <div className="flex items-center gap-4">
+      <span className="text-xs font-mono text-gray-400 w-36">{label}</span>
+      <div className="flex-1 relative h-1 bg-[#2A3040] rounded-full">
+        <div className="absolute left-0 top-0 h-full rounded-full bg-[#C8A94A]" style={{ width: `${((value - min) / (max - min)) * 100}%` }} />
+        <input type="range" min={min} max={max} value={value}
+          onChange={e => onChange(Number(e.target.value))}
+          className="absolute inset-0 w-full opacity-0 cursor-pointer h-full" />
+      </div>
+      <span className="text-sm font-bebas tracking-widest text-[#C8A94A] w-14 text-right">{value}{unit}</span>
+    </div>
+  );
+
+  const Section = ({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) => (
+    <div className="border border-white/10 rounded-sm bg-[#0D1117] overflow-hidden">
+      <div className="flex items-center gap-3 px-5 py-3 border-b border-white/5 bg-[#0A0E14]">
+        <Icon name={icon as string} size={14} className="text-[#C8A94A]" fallback="Settings" />
+        <span className="text-xs font-mono tracking-[0.2em] text-gray-400">{title}</span>
+      </div>
+      <div className="p-5 space-y-4">{children}</div>
+    </div>
+  );
+
+  const Row = ({ label, desc, children }: { label: string; desc?: string; children: React.ReactNode }) => (
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <div className="text-sm text-white font-mono">{label}</div>
+        {desc && <div className="text-xs text-gray-500 mt-0.5">{desc}</div>}
+      </div>
+      {children}
+    </div>
+  );
+
+  return (
+    <div className="tab-panel min-h-screen p-6 space-y-6 max-w-3xl mx-auto">
+      {toast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-sm bg-[#C8A94A] text-[#080B10] font-bebas text-base tracking-widest shadow-2xl" style={{ animation: 'tabFadeIn 0.3s ease-out' }}>
+          {toast}
+        </div>
+      )}
+
+      <div>
+        <div className="text-xs text-gray-500 font-mono tracking-widest mb-1">// КОНФИГУРАЦИЯ</div>
+        <h2 className="font-bebas text-4xl tracking-widest text-white">НАСТРОЙКИ</h2>
+      </div>
+
+      {/* ══ УСТАНОВКА PWA ══ */}
+      <div className="relative rounded-sm overflow-hidden border-2 border-[#C8A94A]/40 bg-[#0D1117]">
+        <div className="absolute inset-0 opacity-10">
+          <img src={ARENA_BG} alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="relative p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 border-2 border-[#C8A94A] flex items-center justify-center rounded-sm">
+                  <Icon name="Smartphone" size={20} className="text-[#C8A94A]" />
+                </div>
+                <div>
+                  <div className="font-bebas text-xl tracking-widest text-white">SPECTRE — МОБИЛЬНАЯ ВЕРСИЯ</div>
+                  <div className="text-xs text-[#C8A94A] font-mono">Запускай прямо с рабочего стола</div>
+                </div>
+              </div>
+              <div className="text-sm text-gray-400 mb-4 max-w-sm">
+                Установи игру на телефон — запускай без браузера, как обычное приложение. Без AppStore и Google Play.
+              </div>
+              <div className="flex flex-wrap gap-3 text-xs font-mono text-gray-500">
+                {['Без рекламы', 'Работает офлайн', 'Иконка на экране', 'Быстрый запуск'].map(f => (
+                  <span key={f} className="flex items-center gap-1">
+                    <span className="text-[#3DB87A]">✓</span> {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end gap-3 flex-shrink-0">
+              {installState === 'installed' ? (
+                <div className="flex items-center gap-2 px-6 py-3 border border-[#3DB87A]/40 rounded-sm bg-[#3DB87A]/10">
+                  <Icon name="CheckCircle" size={18} className="text-[#3DB87A]" />
+                  <span className="font-bebas tracking-widest text-[#3DB87A]">УСТАНОВЛЕНО</span>
+                </div>
+              ) : (
+                <button onClick={handleInstall}
+                  className="corner-dec flex items-center gap-3 px-8 py-4 bg-[#C8A94A] text-[#080B10] font-bebas text-lg tracking-[0.15em] hover:bg-[#E8C96A] transition-all active:scale-95 hover:shadow-[0_0_30px_rgba(200,169,74,0.5)]">
+                  <Icon name="Download" size={20} />
+                  СКАЧАТЬ ИГРУ
+                </button>
+              )}
+              <div className="text-[10px] text-gray-600 font-mono text-right">
+                {installState === 'available' ? '🟢 Готово к установке' :
+                 installState === 'installed' ? '🟢 Уже установлено' :
+                 '📱 Следуй инструкции браузера'}
+              </div>
+            </div>
+          </div>
+
+          {/* Шаги для мобильного */}
+          <div className="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-3">
+            {[
+              { step: '01', text: 'Нажми «СКАЧАТЬ ИГРУ»', icon: 'Download' },
+              { step: '02', text: 'Разреши установку в браузере', icon: 'Smartphone' },
+              { step: '03', text: 'Открывай с рабочего стола', icon: 'Play' },
+            ].map(s => (
+              <div key={s.step} className="flex items-center gap-2">
+                <span className="font-bebas text-[#C8A94A]/40 text-2xl leading-none">{s.step}</span>
+                <span className="text-xs text-gray-500 font-mono leading-tight">{s.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ ГРАФИКА ══ */}
+      <Section title="ГРАФИКА И ПРОИЗВОДИТЕЛЬНОСТЬ" icon="Monitor">
+        <Row label="Качество графики" desc="Влияет на плавность и детализацию">
+          <div className="flex gap-1">
+            {(['low', 'medium', 'high', 'ultra'] as const).map(q => (
+              <button key={q} onClick={() => setGraphics(q)}
+                className={`px-3 py-1 text-xs font-mono rounded-sm border transition-all ${graphics === q ? 'border-[#C8A94A] text-[#C8A94A] bg-[#C8A94A]/10' : 'border-white/10 text-gray-500 hover:text-gray-300'}`}>
+                {q === 'low' ? 'НИЗКОЕ' : q === 'medium' ? 'СРЕДНЕЕ' : q === 'high' ? 'ВЫСОКОЕ' : 'ULTRA'}
+              </button>
+            ))}
+          </div>
+        </Row>
+        <SliderRow label="Поле зрения (FOV)" value={fov} onChange={setFov} min={60} max={120} unit="°" />
+        <Row label="Показывать FPS" desc="Счётчик кадров в углу экрана">
+          <Toggle value={showFps} onChange={setShowFps} />
+        </Row>
+      </Section>
+
+      {/* ══ УПРАВЛЕНИЕ ══ */}
+      <Section title="УПРАВЛЕНИЕ" icon="Gamepad2">
+        <SliderRow label="Чувствительность" value={sensitivity} onChange={setSensitivity} unit="" />
+        <SliderRow label="Прицеливание (ADS)" value={aimSens} onChange={setAimSens} unit="" />
+        <Row label="Тип прицела">
+          <div className="flex gap-1">
+            {(['dot', 'cross', 'circle', 'dynamic'] as const).map(c => (
+              <button key={c} onClick={() => setCrosshair(c)}
+                className={`px-2 py-1 text-xs font-mono rounded-sm border transition-all ${crosshair === c ? 'border-[#C8A94A] text-[#C8A94A] bg-[#C8A94A]/10' : 'border-white/10 text-gray-500'}`}>
+                {c === 'dot' ? '·' : c === 'cross' ? '+' : c === 'circle' ? '○' : '⊕'}
+              </button>
+            ))}
+          </div>
+        </Row>
+        <Row label="Автоматическая перезарядка">
+          <Toggle value={autoReload} onChange={setAutoReload} />
+        </Row>
+        <Row label="Вибрация при попадании">
+          <Toggle value={vibro} onChange={setVibro} />
+        </Row>
+      </Section>
+
+      {/* ══ ЗВУК ══ */}
+      <Section title="ЗВУК" icon="Volume2">
+        <Row label="Звуковые эффекты">
+          <Toggle value={sounds} onChange={setSounds} />
+        </Row>
+        <SliderRow label="Громкость эффектов" value={volume} onChange={setVolume} unit="%" />
+        <Row label="Музыка">
+          <Toggle value={music} onChange={setMusic} />
+        </Row>
+        <SliderRow label="Громкость музыки" value={musicVolume} onChange={setMusicVolume} unit="%" />
+      </Section>
+
+      {/* ══ HUD ══ */}
+      <Section title="ИНТЕРФЕЙС (HUD)" icon="Layout">
+        <Row label="Хитмаркеры" desc="Значок при попадании в противника">
+          <Toggle value={showHitmarkers} onChange={setShowHitmarkers} />
+        </Row>
+        <Row label="Мини-карта">
+          <Toggle value={showMinimap} onChange={setShowMinimap} />
+        </Row>
+        <Row label="Язык интерфейса">
+          <div className="flex gap-1">
+            {(['ru', 'en'] as const).map(l => (
+              <button key={l} onClick={() => setLang(l)}
+                className={`px-4 py-1 text-xs font-mono rounded-sm border transition-all ${lang === l ? 'border-[#C8A94A] text-[#C8A94A] bg-[#C8A94A]/10' : 'border-white/10 text-gray-500'}`}>
+                {l === 'ru' ? '🇷🇺 RU' : '🇺🇸 EN'}
+              </button>
+            ))}
+          </div>
+        </Row>
+        <Row label="Тема оформления">
+          <div className="flex gap-1">
+            {(['dark', 'darker'] as const).map(t => (
+              <button key={t} onClick={() => setTheme(t)}
+                className={`px-3 py-1 text-xs font-mono rounded-sm border transition-all ${theme === t ? 'border-[#C8A94A] text-[#C8A94A] bg-[#C8A94A]/10' : 'border-white/10 text-gray-500'}`}>
+                {t === 'dark' ? 'ТЁМНАЯ' : 'ЧЁРНАЯ'}
+              </button>
+            ))}
+          </div>
+        </Row>
+      </Section>
+
+      {/* ══ УВЕДОМЛЕНИЯ ══ */}
+      <Section title="УВЕДОМЛЕНИЯ" icon="Bell">
+        <Row label="Push-уведомления" desc="События сезона, турниры, акции">
+          <Toggle value={notifications} onChange={setNotifications} />
+        </Row>
+        <Row label="Уведомления о торгах" desc="Когда предмет на маркете продан">
+          <Toggle value={true} onChange={() => {}} />
+        </Row>
+      </Section>
+
+      {/* ══ АККАУНТ ══ */}
+      <Section title="АККАУНТ" icon="User">
+        <Row label="Никнейм">
+          <div className="flex items-center gap-2">
+            <span className="font-bebas text-lg tracking-widest text-white">КОМАНДИР_67</span>
+            <button onClick={() => showToast('Изменение никнейма: скоро')}
+              className="text-xs text-gray-500 border border-white/10 px-2 py-0.5 rounded-sm hover:border-[#C8A94A]/30 hover:text-[#C8A94A] transition-all">
+              изменить
+            </button>
+          </div>
+        </Row>
+        <Row label="ID игрока" desc="Для добавления в друзья">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm text-[#C8A94A] bg-[#C8A94A]/10 border border-[#C8A94A]/20 px-3 py-1 rounded-sm">#SPX-67SIX</span>
+            <button onClick={() => { navigator.clipboard.writeText('#SPX-67SIX'); showToast('ID скопирован!'); }}
+              className="text-gray-500 hover:text-[#C8A94A] transition-all">
+              <Icon name="Copy" size={14} />
+            </button>
+          </div>
+        </Row>
+        <Row label="Привязать аккаунт">
+          <div className="flex gap-2">
+            <button onClick={() => showToast('Привязка Google: скоро')}
+              className="px-4 py-1.5 border border-white/10 text-gray-400 text-xs font-mono rounded-sm hover:border-white/30 hover:text-white transition-all">
+              Google
+            </button>
+            <button onClick={() => showToast('Привязка Telegram: скоро')}
+              className="px-4 py-1.5 border border-white/10 text-gray-400 text-xs font-mono rounded-sm hover:border-white/30 hover:text-white transition-all">
+              Telegram
+            </button>
+          </div>
+        </Row>
+      </Section>
+
+      {/* ══ ДАННЫЕ ══ */}
+      <Section title="ДАННЫЕ И КОНФИДЕНЦИАЛЬНОСТЬ" icon="Database">
+        <Row label="Сбор аналитики" desc="Помогает улучшать игру">
+          <Toggle value={true} onChange={() => {}} />
+        </Row>
+        <Row label="Очистить кэш">
+          <button onClick={() => showToast('Кэш очищен!')}
+            className="px-4 py-1.5 border border-white/10 text-gray-400 text-xs font-mono rounded-sm hover:border-[#D94040]/40 hover:text-[#D94040] transition-all">
+            ОЧИСТИТЬ
+          </button>
+        </Row>
+        <Row label="Версия игры">
+          <span className="text-xs font-mono text-gray-500">v4.2.1 · Сезон 4</span>
+        </Row>
+      </Section>
+
+      {/* Сохранить */}
+      <div className="flex justify-end">
+        <button onClick={() => showToast('Настройки сохранены!')}
+          className="corner-dec px-10 py-3 bg-[#C8A94A] text-[#080B10] font-bebas text-lg tracking-[0.15em] hover:bg-[#E8C96A] transition-all active:scale-95">
+          СОХРАНИТЬ
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Главный компонент ───────────────────────────────────────────────────────
 
-type Tab = 'home' | 'battle' | 'cases' | 'inventory' | 'market' | 'rating' | 'donate';
+type Tab = 'home' | 'battle' | 'cases' | 'inventory' | 'market' | 'rating' | 'donate' | 'settings';
 
 const NAV_ITEMS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home',      label: 'ГЛАВНАЯ',   icon: 'Home' },
@@ -890,6 +1235,7 @@ const NAV_ITEMS: { id: Tab; label: string; icon: string }[] = [
   { id: 'market',    label: 'МАРКЕТ',    icon: 'ShoppingCart' },
   { id: 'rating',    label: 'РЕЙТИНГ',   icon: 'Trophy' },
   { id: 'donate',    label: 'ДОНАТ',     icon: 'CreditCard' },
+  { id: 'settings',  label: 'НАСТРОЙКИ', icon: 'Settings' },
 ];
 
 export default function Index() {
@@ -928,6 +1274,10 @@ export default function Index() {
             className="px-3 py-1.5 bg-[#C8A94A] text-[#080B10] font-bebas tracking-widest text-sm hover:bg-[#E8C96A] transition-all active:scale-95">
             + ПОПОЛНИТЬ
           </button>
+          <button onClick={() => setTab('settings')}
+            className={`w-8 h-8 rounded-sm flex items-center justify-center border transition-all ${tab === 'settings' ? 'border-[#C8A94A]/50 bg-[#C8A94A]/10' : 'border-white/10 bg-[#1A2030] hover:border-white/30'}`}>
+            <Icon name="Settings" size={16} className={tab === 'settings' ? 'text-[#C8A94A]' : 'text-gray-400'} />
+          </button>
           <div className="w-8 h-8 rounded-sm bg-[#1A2030] flex items-center justify-center border border-white/10">
             <Icon name="User" size={16} className="text-gray-400" />
           </div>
@@ -942,6 +1292,7 @@ export default function Index() {
         {tab === 'market'    && <TabMarket />}
         {tab === 'rating'    && <TabRating />}
         {tab === 'donate'    && <TabDonate balance={balance} setBalance={setBalance} />}
+        {tab === 'settings'  && <TabSettings />}
       </main>
     </div>
   );
