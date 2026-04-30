@@ -4,23 +4,76 @@ import Icon from '@/components/ui/icon';
 // ─── Данные ─────────────────────────────────────────────────────────────────
 
 const ARENA_BG = "https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/19484eae-364b-44fe-8f5c-7ce9a6d69010.jpg";
-const AGENT_IMG = "https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/4d197a44-5307-459e-820b-c07eeba77f47.jpg";
 const WEAPONS_IMG = "https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/509fbabf-2628-477c-a28a-411871fff985.jpg";
 
+// Скины оружия
+const WEAPON_SKINS: Record<number, { name: string; img: string; rarity: string }[]> = {
+  1: [
+    { name: 'Стандарт', img: WEAPONS_IMG, rarity: 'common' },
+    { name: 'Кибер-Контур', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/c7403772-e4ef-43e1-9232-5ab0919dc369.jpg', rarity: 'epic' },
+    { name: 'Золотой Дракон', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/82b53b2a-63c8-4c79-8b59-b1e64aa4666a.jpg', rarity: 'mythic' },
+  ],
+  2: [
+    { name: 'Стандарт', img: WEAPONS_IMG, rarity: 'common' },
+    { name: 'Красный Дракон', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/4ee38901-155b-4db1-9b9e-3b65581bea76.jpg', rarity: 'legendary' },
+    { name: 'Хром Элит', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/7ea1fef2-53e2-4d09-b566-3f826cbf5f2b.jpg', rarity: 'epic' },
+  ],
+  3: [
+    { name: 'Стандарт', img: WEAPONS_IMG, rarity: 'common' },
+    { name: 'Лесной Камо', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/5abe1fab-db29-4496-ba20-fb927c7f7e07.jpg', rarity: 'rare' },
+    { name: 'Тигр', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/f959ee55-9abb-47ef-bad7-cf6bb1605001.jpg', rarity: 'epic' },
+  ],
+  4: [
+    { name: 'Стандарт', img: WEAPONS_IMG, rarity: 'common' },
+    { name: 'Золотой Тигр', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/1a96cfc3-31a8-4b77-948c-68b579c9b468.jpg', rarity: 'legendary' },
+    { name: '67 Six Seven', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/3739792f-d49a-4e7e-93c3-f3c748ce350e.jpg', rarity: 'mythic' },
+  ],
+  5: [
+    { name: 'Стандарт', img: WEAPONS_IMG, rarity: 'common' },
+    { name: 'Галактика', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/dc0d1659-2e41-40fa-ba64-ed726192dcb0.jpg', rarity: 'epic' },
+    { name: 'Пламя', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/165def84-3e3b-4f8e-9252-6e144075bb2f.jpg', rarity: 'legendary' },
+  ],
+  6: [
+    { name: 'Стандарт', img: WEAPONS_IMG, rarity: 'common' },
+    { name: 'Огонь', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/bfa7b703-6c07-4142-9e08-b3f1a1339ba0.jpg', rarity: 'legendary' },
+    { name: 'Карамбит', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/c4fe6d3a-1aad-456f-bfbd-f51c9f778b99.jpg', rarity: 'rare' },
+  ],
+};
+
+// Скины агентов
+const AGENT_SKINS: Record<number, { name: string; img: string; rarity: string }[]> = {
+  1: [
+    { name: 'Базовый', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/8ce671af-4090-460f-806f-bec011c83bca.jpg', rarity: 'common' },
+    { name: 'Кровавый', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/8fce9d68-0079-4f4a-9ce2-698451df1672.jpg', rarity: 'legendary' },
+  ],
+  2: [
+    { name: 'Базовый', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/be52eeab-a060-4704-b256-140f208fd40e.jpg', rarity: 'common' },
+    { name: 'Полночь', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/693d84f8-8340-464f-afbe-80ba54c1f339.jpg', rarity: 'epic' },
+  ],
+  3: [
+    { name: 'Базовый', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/022eba31-9440-418f-afac-047112acbf0d.jpg', rarity: 'common' },
+    { name: 'Джунгли', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/cf2fbf66-838f-46de-91d8-a3b1beeaf258.jpg', rarity: 'rare' },
+  ],
+  4: [
+    { name: 'Базовый', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/71edb878-7aa9-492b-8748-265e76f3a2d9.jpg', rarity: 'common' },
+    { name: 'Теневой', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/046c6233-d255-469e-aa63-d038301be395.jpg', rarity: 'mythic' },
+  ],
+};
+
 const AGENTS = [
-  { id: 1, name: 'РЕЙДЕР', role: 'Штурм', img: AGENT_IMG, hp: 150, armor: 100, speed: 88, accuracy: 72, color: '#D94040' },
-  { id: 2, name: 'ПРИЗРАК', role: 'Разведка', img: AGENT_IMG, hp: 120, armor: 80, speed: 96, accuracy: 90, color: '#4A8FD4' },
-  { id: 3, name: 'СТРАЖ', role: 'Поддержка', img: AGENT_IMG, hp: 180, armor: 130, speed: 70, accuracy: 68, color: '#3DB87A' },
-  { id: 4, name: 'ТЕНЬ', role: 'Снайпер', img: AGENT_IMG, hp: 110, armor: 60, speed: 82, accuracy: 98, color: '#9B59D4' },
+  { id: 1, name: 'РЕЙДЕР', role: 'Штурм', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/8ce671af-4090-460f-806f-bec011c83bca.jpg', hp: 150, armor: 100, speed: 88, accuracy: 72, color: '#D94040' },
+  { id: 2, name: 'ПРИЗРАК', role: 'Разведка', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/be52eeab-a060-4704-b256-140f208fd40e.jpg', hp: 120, armor: 80, speed: 96, accuracy: 90, color: '#4A8FD4' },
+  { id: 3, name: 'СТРАЖ', role: 'Поддержка', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/022eba31-9440-418f-afac-047112acbf0d.jpg', hp: 180, armor: 130, speed: 70, accuracy: 68, color: '#3DB87A' },
+  { id: 4, name: 'ТЕНЬ', role: 'Снайпер', img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/71edb878-7aa9-492b-8748-265e76f3a2d9.jpg', hp: 110, armor: 60, speed: 82, accuracy: 98, color: '#9B59D4' },
 ];
 
 const WEAPONS = [
-  { id: 1, name: 'AK-74M', type: 'Штурм', rarity: 'legendary', damage: 94, range: 78, recoil: 62, rate: 74, img: WEAPONS_IMG },
-  { id: 2, name: 'SVD', type: 'Снайпер', rarity: 'epic', damage: 99, range: 98, recoil: 45, rate: 28, img: WEAPONS_IMG },
-  { id: 3, name: 'MP5-SD', type: 'ПП', rarity: 'rare', damage: 65, range: 52, recoil: 80, rate: 92, img: WEAPONS_IMG },
-  { id: 4, name: 'Desert Eagle', type: 'Пистолет', rarity: 'epic', damage: 88, range: 55, recoil: 55, rate: 42, img: WEAPONS_IMG },
-  { id: 5, name: 'M249', type: 'Пулемёт', rarity: 'legendary', damage: 82, range: 70, recoil: 40, rate: 98, img: WEAPONS_IMG },
-  { id: 6, name: 'SPAS-12', type: 'Дробовик', rarity: 'rare', damage: 96, range: 30, recoil: 50, rate: 35, img: WEAPONS_IMG },
+  { id: 1, name: 'AK-74M', type: 'Штурм', rarity: 'legendary', damage: 94, range: 78, recoil: 62, rate: 74, img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/c7403772-e4ef-43e1-9232-5ab0919dc369.jpg' },
+  { id: 2, name: 'SVD', type: 'Снайпер', rarity: 'epic', damage: 99, range: 98, recoil: 45, rate: 28, img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/4ee38901-155b-4db1-9b9e-3b65581bea76.jpg' },
+  { id: 3, name: 'MP5-SD', type: 'ПП', rarity: 'rare', damage: 65, range: 52, recoil: 80, rate: 92, img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/5abe1fab-db29-4496-ba20-fb927c7f7e07.jpg' },
+  { id: 4, name: 'Desert Eagle', type: 'Пистолет', rarity: 'epic', damage: 88, range: 55, recoil: 55, rate: 42, img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/1a96cfc3-31a8-4b77-948c-68b579c9b468.jpg' },
+  { id: 5, name: 'M249', type: 'Пулемёт', rarity: 'legendary', damage: 82, range: 70, recoil: 40, rate: 98, img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/dc0d1659-2e41-40fa-ba64-ed726192dcb0.jpg' },
+  { id: 6, name: 'SPAS-12', type: 'Дробовик', rarity: 'epic', damage: 96, range: 30, recoil: 50, rate: 35, img: 'https://cdn.poehali.dev/projects/cbf40ccd-6010-4f80-a7ce-64a12b747650/files/bfa7b703-6c07-4142-9e08-b3f1a1339ba0.jpg' },
 ];
 
 const MAPS = [
@@ -234,9 +287,70 @@ function TabBattle() {
   const [selectedWeapon, setSelectedWeapon] = useState(0);
   const [selectedMap, setSelectedMap] = useState(0);
   const [view, setView] = useState<'modes' | 'agents' | 'weapons'>('modes');
+  const [agentSkins, setAgentSkins] = useState<Record<number, number>>({ 1: 0, 2: 0, 3: 0, 4: 0 });
+  const [weaponSkins, setWeaponSkins] = useState<Record<number, number>>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 });
+  const [skinModal, setSkinModal] = useState<{ type: 'agent' | 'weapon'; id: number } | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [searchDone, setSearchDone] = useState(false);
+
+  const startSearch = () => {
+    setSearching(true);
+    setTimeout(() => { setSearching(false); setSearchDone(true); }, 3000);
+    setTimeout(() => setSearchDone(false), 6000);
+  };
+
+  const getSkinImg = (weaponId: number) => {
+    const skins = WEAPON_SKINS[weaponId];
+    const idx = weaponSkins[weaponId] ?? 0;
+    return skins?.[idx]?.img ?? WEAPONS_IMG;
+  };
+  const getAgentSkinImg = (agentId: number) => {
+    const skins = AGENT_SKINS[agentId];
+    const idx = agentSkins[agentId] ?? 0;
+    return skins?.[idx]?.img ?? AGENTS.find(a => a.id === agentId)?.img ?? '';
+  };
 
   return (
     <div className="tab-panel min-h-screen p-6 space-y-6">
+      {/* Скин-модалка */}
+      {skinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setSkinModal(null)}>
+          <div className="bg-[#0D1117] border border-[#C8A94A]/30 rounded-sm p-6 w-96 max-w-[90vw]" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-bebas text-xl tracking-widest text-white">ВЫБОР СКИНА</span>
+              <button onClick={() => setSkinModal(null)} className="text-gray-500 hover:text-white"><Icon name="X" size={18} /></button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {(skinModal.type === 'weapon' ? WEAPON_SKINS[skinModal.id] : AGENT_SKINS[skinModal.id])?.map((skin, idx) => {
+                const isSelected = skinModal.type === 'weapon'
+                  ? (weaponSkins[skinModal.id] ?? 0) === idx
+                  : (agentSkins[skinModal.id] ?? 0) === idx;
+                return (
+                  <div key={idx} onClick={() => {
+                    if (skinModal.type === 'weapon') setWeaponSkins(s => ({ ...s, [skinModal.id]: idx }));
+                    else setAgentSkins(s => ({ ...s, [skinModal.id]: idx }));
+                  }}
+                    className={`cursor-pointer rounded-sm border-2 overflow-hidden transition-all ${isSelected ? 'border-[#C8A94A]' : 'border-white/10 hover:border-white/30'}`}>
+                    <img src={skin.img} alt={skin.name} className="w-full h-20 object-cover" />
+                    <div className="p-2">
+                      <div className="text-xs font-mono text-white truncate">{skin.name}</div>
+                      <div className="text-[10px] font-mono mt-0.5" style={{ color: rarityColor[skin.rarity] }}>
+                        {rarityLabel[skin.rarity]}
+                      </div>
+                    </div>
+                    {isSelected && <div className="absolute inset-0 border-2 border-[#C8A94A]" />}
+                  </div>
+                );
+              })}
+            </div>
+            <button onClick={() => setSkinModal(null)}
+              className="w-full mt-4 py-2 bg-[#C8A94A] text-[#080B10] font-bebas tracking-widest hover:bg-[#E8C96A] transition-all">
+              ПРИМЕНИТЬ
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <div className="text-xs text-gray-500 font-mono tracking-widest mb-1">// БОЕВЫЕ РЕЖИМЫ</div>
@@ -260,14 +374,12 @@ function TabBattle() {
               <img src={map.img} alt={map.name} className="absolute inset-0 w-full h-full object-cover" />
               <div className="map-overlay absolute inset-0 bg-black" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
               {map.status && (
                 <div className="absolute top-3 right-3 px-2 py-0.5 text-xs font-mono font-bold tracking-widest rounded-sm"
                   style={{ background: map.status === 'hot' ? '#D94040' : '#3DB87A', color: '#fff' }}>
                   {map.status === 'hot' ? '🔥 ХИТ' : '✦ НОВАЯ'}
                 </div>
               )}
-
               <div className="absolute bottom-0 left-0 right-0 p-4 map-label">
                 <div className="font-bebas text-2xl tracking-widest text-white">{map.name}</div>
                 <div className="flex items-center gap-3 mt-1">
@@ -275,10 +387,7 @@ function TabBattle() {
                   <span className="text-xs text-gray-400 font-mono">{map.size} · {map.time}</span>
                 </div>
               </div>
-
-              {selectedMap === i && (
-                <div className="absolute inset-0 border-2 border-[#C8A94A] pointer-events-none" />
-              )}
+              {selectedMap === i && <div className="absolute inset-0 border-2 border-[#C8A94A] pointer-events-none" />}
             </div>
           ))}
         </div>
@@ -286,65 +395,98 @@ function TabBattle() {
 
       {view === 'agents' && (
         <div className="grid grid-cols-4 gap-4">
-          {AGENTS.map((agent, i) => (
-            <div key={agent.id} onClick={() => setSelectedAgent(i)}
-              className={`agent-card relative rounded-sm overflow-hidden border-2 transition-all ${selectedAgent === i ? 'border-[#C8A94A]' : 'border-white/10'}`}
-              style={{ background: `linear-gradient(160deg, ${agent.color}15, #0D1117)` }}>
-              <img src={agent.img} alt={agent.name} className="w-full h-52 object-cover object-top" />
-              <div className="absolute inset-x-0 bottom-0 p-3" style={{ background: 'linear-gradient(to top, #080B10, transparent)' }}>
-                <div className="font-bebas text-xl tracking-widest" style={{ color: agent.color }}>{agent.name}</div>
-                <div className="text-xs text-gray-400 font-mono">{agent.role}</div>
-                <div className="mt-2 space-y-1">
-                  <div className="flex justify-between text-[10px] text-gray-500 font-mono">
-                    <span>HP</span><span className="text-white">{agent.hp}</span>
+          {AGENTS.map((agent, i) => {
+            const skinIdx = agentSkins[agent.id] ?? 0;
+            const skin = AGENT_SKINS[agent.id]?.[skinIdx];
+            const currentImg = skin?.img ?? agent.img;
+            return (
+              <div key={agent.id} onClick={() => setSelectedAgent(i)}
+                className={`agent-card relative rounded-sm overflow-hidden border-2 transition-all ${selectedAgent === i ? 'border-[#C8A94A]' : 'border-white/10'}`}
+                style={{ background: `linear-gradient(160deg, ${agent.color}15, #0D1117)` }}>
+                <img src={currentImg} alt={agent.name} className="w-full h-52 object-cover object-top" />
+                {/* Скин-бейдж */}
+                {skinIdx > 0 && skin && (
+                  <div className="absolute top-2 left-2 px-1.5 py-0.5 text-[9px] font-mono font-bold rounded-sm"
+                    style={{ background: rarityColor[skin.rarity], color: '#080B10' }}>
+                    {skin.name}
                   </div>
-                  <StatBar value={(agent.hp / 200) * 100} color={agent.color} />
-                  <div className="flex justify-between text-[10px] text-gray-500 font-mono">
-                    <span>СКОРОСТЬ</span><span className="text-white">{agent.speed}</span>
+                )}
+                <div className="absolute inset-x-0 bottom-0 p-3" style={{ background: 'linear-gradient(to top, #080B10, transparent)' }}>
+                  <div className="font-bebas text-xl tracking-widest" style={{ color: agent.color }}>{agent.name}</div>
+                  <div className="text-xs text-gray-400 font-mono mb-2">{agent.role}</div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px] text-gray-500 font-mono">
+                      <span>HP</span><span className="text-white">{agent.hp}</span>
+                    </div>
+                    <StatBar value={(agent.hp / 200) * 100} color={agent.color} />
+                    <div className="flex justify-between text-[10px] text-gray-500 font-mono">
+                      <span>СКОРОСТЬ</span><span className="text-white">{agent.speed}</span>
+                    </div>
+                    <StatBar value={agent.speed} color={agent.color} />
                   </div>
-                  <StatBar value={agent.speed} color={agent.color} />
+                  {/* Кнопка скина */}
+                  <button onClick={e => { e.stopPropagation(); setSkinModal({ type: 'agent', id: agent.id }); }}
+                    className="mt-2 w-full py-1 text-[10px] font-mono border border-white/20 text-gray-400 hover:border-[#C8A94A]/50 hover:text-[#C8A94A] transition-all rounded-sm">
+                    🎨 СКИНЫ ({AGENT_SKINS[agent.id]?.length ?? 1})
+                  </button>
                 </div>
+                {selectedAgent === i && (
+                  <div className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-sm bg-[#C8A94A]">
+                    <Icon name="Check" size={14} className="text-black" />
+                  </div>
+                )}
               </div>
-              {selectedAgent === i && (
-                <div className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-sm bg-[#C8A94A]">
-                  <Icon name="Check" size={14} className="text-black" />
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {view === 'weapons' && (
         <div className="grid grid-cols-3 gap-4">
-          {WEAPONS.map((w, i) => (
-            <div key={w.id} onClick={() => setSelectedWeapon(i)}
-              className={`weapon-card rounded-sm border-2 p-4 transition-all ${selectedWeapon === i ? 'border-[#C8A94A] bg-[#C8A94A]/5' : 'border-white/10 bg-[#0D1117]'}`}>
-              <img src={w.img} alt={w.name} className="w-full h-28 object-cover rounded-sm mb-3 opacity-90" />
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <div className="font-bebas text-lg tracking-widest text-white">{w.name}</div>
-                  <div className="text-xs text-gray-500 font-mono">{w.type}</div>
-                </div>
-                <RarityBadge rarity={w.rarity} />
-              </div>
-              <div className="space-y-2 mt-3">
-                {[
-                  { label: 'УРОН', val: w.damage, color: '#D94040' },
-                  { label: 'ДАЛЬНОСТЬ', val: w.range, color: '#4A8FD4' },
-                  { label: 'ОТДАЧА', val: w.recoil, color: '#E07A30' },
-                  { label: 'СКОРОСТЬ', val: w.rate, color: '#3DB87A' },
-                ].map(s => (
-                  <div key={s.label}>
-                    <div className="flex justify-between text-[10px] font-mono text-gray-500 mb-0.5">
-                      <span>{s.label}</span><span style={{ color: s.color }}>{s.val}</span>
+          {WEAPONS.map((w, i) => {
+            const skinIdx = weaponSkins[w.id] ?? 0;
+            const skin = WEAPON_SKINS[w.id]?.[skinIdx];
+            return (
+              <div key={w.id} onClick={() => setSelectedWeapon(i)}
+                className={`weapon-card rounded-sm border-2 p-4 transition-all ${selectedWeapon === i ? 'border-[#C8A94A] bg-[#C8A94A]/5' : 'border-white/10 bg-[#0D1117]'}`}>
+                <div className="relative mb-3">
+                  <img src={getSkinImg(w.id)} alt={w.name} className="w-full h-28 object-cover rounded-sm opacity-90" />
+                  {skinIdx > 0 && skin && (
+                    <div className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[9px] font-mono font-bold rounded-sm"
+                      style={{ background: rarityColor[skin.rarity], color: '#080B10' }}>
+                      {skin.name}
                     </div>
-                    <StatBar value={s.val} color={s.color} />
+                  )}
+                </div>
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="font-bebas text-lg tracking-widest text-white">{w.name}</div>
+                    <div className="text-xs text-gray-500 font-mono">{w.type}</div>
                   </div>
-                ))}
+                  <RarityBadge rarity={w.rarity} />
+                </div>
+                <div className="space-y-2 mt-2">
+                  {[
+                    { label: 'УРОН', val: w.damage, color: '#D94040' },
+                    { label: 'ДАЛЬНОСТЬ', val: w.range, color: '#4A8FD4' },
+                    { label: 'ОТДАЧА', val: w.recoil, color: '#E07A30' },
+                    { label: 'СКОРОСТЬ', val: w.rate, color: '#3DB87A' },
+                  ].map(s => (
+                    <div key={s.label}>
+                      <div className="flex justify-between text-[10px] font-mono text-gray-500 mb-0.5">
+                        <span>{s.label}</span><span style={{ color: s.color }}>{s.val}</span>
+                      </div>
+                      <StatBar value={s.val} color={s.color} />
+                    </div>
+                  ))}
+                </div>
+                <button onClick={e => { e.stopPropagation(); setSkinModal({ type: 'weapon', id: w.id }); }}
+                  className="mt-3 w-full py-1 text-[10px] font-mono border border-white/20 text-gray-400 hover:border-[#C8A94A]/50 hover:text-[#C8A94A] transition-all rounded-sm">
+                  🎨 СКИНЫ ({WEAPON_SKINS[w.id]?.length ?? 1})
+                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -354,9 +496,22 @@ function TabBattle() {
           Агент: <span className="text-[#C8A94A]">{AGENTS[selectedAgent].name}</span> ·{' '}
           Оружие: <span className="text-[#C8A94A]">{WEAPONS[selectedWeapon].name}</span>
         </div>
-        <button className="corner-dec px-10 py-3 bg-[#C8A94A] text-[#080B10] font-bebas text-lg tracking-[0.15em] hover:bg-[#E8C96A] transition-all active:scale-95 hover:shadow-[0_0_30px_rgba(200,169,74,0.4)]">
-          НАЙТИ МАТЧ
-        </button>
+        {searchDone ? (
+          <div className="flex items-center gap-3 px-6 py-3 border border-[#3DB87A]/40 bg-[#3DB87A]/10 rounded-sm">
+            <div className="w-2 h-2 rounded-full bg-[#3DB87A] pulse-dot" />
+            <span className="font-bebas text-lg tracking-widest text-[#3DB87A]">МАТЧ НАЙДЕН!</span>
+          </div>
+        ) : (
+          <button onClick={startSearch} disabled={searching}
+            className="corner-dec relative overflow-hidden px-10 py-3 bg-[#C8A94A] text-[#080B10] font-bebas text-lg tracking-[0.15em] hover:bg-[#E8C96A] transition-all active:scale-95 disabled:opacity-70 hover:shadow-[0_0_30px_rgba(200,169,74,0.4)]">
+            {searching ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-[#080B10]/40 border-t-[#080B10] rounded-full animate-spin" />
+                ПОИСК...
+              </span>
+            ) : 'НАЙТИ МАТЧ'}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -1297,6 +1452,21 @@ const NAV_ITEMS: { id: Tab; label: string; icon: string }[] = [
 export default function Index() {
   const [tab, setTab] = useState<Tab>('home');
   const [balance, setBalance] = useState(12500);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
 
   return (
     <div className="scanlines min-h-screen bg-[#080B10] text-white" style={{ fontFamily: 'Roboto, sans-serif' }}>
@@ -1333,6 +1503,11 @@ export default function Index() {
           <button onClick={() => setTab('settings')}
             className={`w-8 h-8 rounded-sm flex items-center justify-center border transition-all ${tab === 'settings' ? 'border-[#C8A94A]/50 bg-[#C8A94A]/10' : 'border-white/10 bg-[#1A2030] hover:border-white/30'}`}>
             <Icon name="Settings" size={16} className={tab === 'settings' ? 'text-[#C8A94A]' : 'text-gray-400'} />
+          </button>
+          <button onClick={toggleFullscreen}
+            title={isFullscreen ? 'Выйти из полноэкранного режима' : 'На весь экран'}
+            className={`w-8 h-8 rounded-sm flex items-center justify-center border transition-all hover:border-[#C8A94A]/50 hover:bg-[#C8A94A]/10 ${isFullscreen ? 'border-[#C8A94A]/50 bg-[#C8A94A]/10' : 'border-white/10 bg-[#1A2030]'}`}>
+            <Icon name={isFullscreen ? 'Minimize' : 'Maximize'} size={15} className={isFullscreen ? 'text-[#C8A94A]' : 'text-gray-400'} />
           </button>
           <div className="w-8 h-8 rounded-sm bg-[#1A2030] flex items-center justify-center border border-white/10">
             <Icon name="User" size={16} className="text-gray-400" />
