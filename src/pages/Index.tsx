@@ -362,28 +362,36 @@ function TabBattle() {
   );
 }
 
-function TabCases() {
+function TabCases({ balance, setBalance }: { balance: number; setBalance: React.Dispatch<React.SetStateAction<number>> }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [spinning, setSpinning] = useState(false);
-  const [result, setResult] = useState<typeof CASE_ITEMS[0] | null>(null);
-  const [balance, setBalance] = useState(12500);
+  const [result, setResult] = useState<{ name: string; rarity: string; chance: string; emoji?: string } | null>(null);
+
+  const currentCase = selected !== null ? CASES[selected] : null;
+  const isAgentCase = currentCase?.type === 'agents';
+  const poolItems = isAgentCase ? AGENT_CASE_ITEMS : CASE_ITEMS;
 
   const openCase = () => {
-    if (selected === null) return;
-    const price = CASES[selected].price;
-    if (balance < price) return;
-    setBalance(b => b - price);
+    if (selected === null || !currentCase) return;
+    if (balance < currentCase.price) return;
+    setBalance(b => b - currentCase.price);
     setSpinning(true);
     setResult(null);
     setTimeout(() => {
       setSpinning(false);
       const rand = Math.random();
-      let item: typeof CASE_ITEMS[0];
-      if (rand < 0.05) item = CASE_ITEMS.find(i => i.rarity === 'mythic') ?? CASE_ITEMS[0];
-      else if (rand < 0.15) item = CASE_ITEMS.find(i => i.rarity === 'legendary') ?? CASE_ITEMS[0];
-      else if (rand < 0.30) item = CASE_ITEMS.find(i => i.rarity === 'epic') ?? CASE_ITEMS[0];
-      else if (rand < 0.55) item = CASE_ITEMS.find(i => i.rarity === 'rare') ?? CASE_ITEMS[0];
-      else item = CASE_ITEMS.find(i => i.rarity === 'common') ?? CASE_ITEMS[0];
+      let item: typeof poolItems[0];
+      if (isAgentCase) {
+        if (rand < 0.20) item = poolItems.find(i => i.rarity === 'mythic') ?? poolItems[0];
+        else if (rand < 0.50) item = poolItems.find(i => i.rarity === 'legendary') ?? poolItems[0];
+        else item = poolItems.find(i => i.rarity === 'epic') ?? poolItems[0];
+      } else {
+        if (rand < 0.05) item = poolItems.find(i => i.rarity === 'mythic') ?? poolItems[0];
+        else if (rand < 0.15) item = poolItems.find(i => i.rarity === 'legendary') ?? poolItems[0];
+        else if (rand < 0.30) item = poolItems.find(i => i.rarity === 'epic') ?? poolItems[0];
+        else if (rand < 0.55) item = poolItems.find(i => i.rarity === 'rare') ?? poolItems[0];
+        else item = poolItems.find(i => i.rarity === 'common') ?? poolItems[0];
+      }
       setResult(item);
     }, 4800);
   };
@@ -402,36 +410,44 @@ function TabCases() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        {CASES.map((c, i) => (
-          <div key={c.id} onClick={() => setSelected(i)}
-            className={`relative rounded-sm overflow-hidden border-2 cursor-pointer transition-all hover:scale-[1.02] ${selected === i ? 'border-[#C8A94A]' : 'border-white/10'}`}>
-            <img src={c.img} alt={c.name} className="w-full h-40 object-cover opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-3">
-              <div className="font-bebas text-lg tracking-widest text-white">{c.name}</div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-xs text-gray-400 font-mono">{c.items} предметов</span>
-                <span className="font-bebas text-lg text-[#C8A94A] tracking-widest">{c.price} SP</span>
+      <div className="grid grid-cols-4 gap-4">
+        {CASES.map((c, i) => {
+          const isElite = c.type === 'agents';
+          return (
+            <div key={c.id} onClick={() => { setSelected(i); setResult(null); }}
+              className={`relative rounded-sm overflow-hidden border-2 cursor-pointer transition-all hover:scale-[1.02] ${selected === i ? 'border-[#C8A94A]' : isElite ? 'border-[#D94040]/50' : 'border-white/10'}`}>
+              <img src={c.img} alt={c.name} className="w-full h-40 object-cover opacity-60" />
+              <div className="absolute inset-0" style={{ background: isElite ? 'linear-gradient(to top, rgba(80,0,0,0.95), rgba(40,0,0,0.5) 60%, transparent)' : 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)' }} />
+              {isElite && (
+                <div className="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-mono font-bold tracking-widest rounded-sm bg-[#D94040] text-white">
+                  👑 ЭКСКЛЮЗИВ
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                <div className="font-bebas text-base tracking-widest text-white leading-tight">{c.name}</div>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-xs text-gray-400 font-mono">{c.items} предм.</span>
+                  <span className={`font-bebas text-lg tracking-widest ${isElite ? 'text-[#D94040]' : 'text-[#C8A94A]'}`}>{c.price.toLocaleString()} SP</span>
+                </div>
               </div>
+              {selected === i && <div className="absolute inset-0 border-2 border-[#C8A94A] pointer-events-none" />}
             </div>
-            {selected === i && <div className="absolute inset-0 border-2 border-[#C8A94A] pointer-events-none" />}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {selected !== null && (
-        <div className="border border-white/10 rounded-sm p-6 bg-[#0D1117] relative overflow-hidden">
-          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-[#C8A94A] z-10" />
-          <div className="absolute left-1/2 top-0 w-3 h-3 bg-[#C8A94A] transform -translate-x-1/2 rotate-45" />
+        <div className={`border rounded-sm p-6 relative overflow-hidden ${isAgentCase ? 'border-[#D94040]/30 bg-[#1A0505]' : 'border-white/10 bg-[#0D1117]'}`}>
+          <div className={`absolute left-1/2 top-0 bottom-0 w-0.5 z-10 ${isAgentCase ? 'bg-[#D94040]' : 'bg-[#C8A94A]'}`} />
+          <div className={`absolute left-1/2 top-0 w-3 h-3 transform -translate-x-1/2 rotate-45 ${isAgentCase ? 'bg-[#D94040]' : 'bg-[#C8A94A]'}`} />
 
           <div className="overflow-hidden">
             <div className={`flex gap-2 ${spinning ? 'case-spinning' : ''}`}
-              style={{ width: `${CASE_ITEMS.length * 3 * 160}px` }}>
-              {[...CASE_ITEMS, ...CASE_ITEMS, ...CASE_ITEMS].map((item, idx) => (
+              style={{ width: `${poolItems.length * 3 * 160}px` }}>
+              {[...poolItems, ...poolItems, ...poolItems].map((item, idx) => (
                 <div key={idx} className="flex-shrink-0 w-36 h-32 border rounded-sm flex flex-col items-center justify-center p-2 text-center"
                   style={{ borderColor: rarityColor[item.rarity], background: `${rarityColor[item.rarity]}10` }}>
-                  <div className="text-2xl mb-1">🔫</div>
+                  <div className="text-2xl mb-1">{'emoji' in item ? item.emoji : '🔫'}</div>
                   <div className="text-xs font-mono leading-tight" style={{ color: rarityColor[item.rarity] }}>{item.name}</div>
                   <div className="text-[10px] text-gray-600 font-mono mt-1">{item.chance}</div>
                 </div>
@@ -443,7 +459,7 @@ function TabCases() {
             <div className="mt-6 flex items-center justify-center">
               <div className="border-2 p-6 rounded-sm text-center"
                 style={{ borderColor: rarityColor[result.rarity], background: `${rarityColor[result.rarity]}10` }}>
-                <div className="text-3xl mb-2">🔫</div>
+                <div className="text-4xl mb-2">{'emoji' in result ? (result as { emoji?: string }).emoji ?? '🔫' : '🔫'}</div>
                 <div className="font-bebas text-2xl tracking-widest" style={{ color: rarityColor[result.rarity] }}>{result.name}</div>
                 <div className="mt-1"><RarityBadge rarity={result.rarity} /></div>
                 <div className="text-xs text-gray-400 font-mono mt-2">Добавлено в инвентарь</div>
@@ -455,23 +471,183 @@ function TabCases() {
 
       <div className="flex items-center justify-center gap-4">
         <button onClick={openCase}
-          disabled={selected === null || spinning || balance < (selected !== null ? CASES[selected].price : 0)}
+          disabled={selected === null || spinning || balance < (currentCase?.price ?? 0)}
           className="corner-dec px-12 py-4 bg-[#C8A94A] text-[#080B10] font-bebas text-xl tracking-[0.15em] hover:bg-[#E8C96A] transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-[0_0_40px_rgba(200,169,74,0.4)]">
-          {spinning ? 'ОТКРЫВАЕТСЯ...' : selected !== null ? `ОТКРЫТЬ ЗА ${CASES[selected].price} SP` : 'ВЫБЕРИТЕ КЕЙС'}
+          {spinning ? 'ОТКРЫВАЕТСЯ...' : currentCase ? `ОТКРЫТЬ ЗА ${currentCase.price.toLocaleString()} SP` : 'ВЫБЕРИТЕ КЕЙС'}
         </button>
       </div>
 
-      <div>
-        <div className="text-xs text-gray-500 font-mono tracking-widest mb-3">СОДЕРЖИМОЕ КЕЙСА</div>
-        <div className="flex flex-wrap gap-2">
-          {CASE_ITEMS.map((item, i) => (
-            <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-sm border text-xs font-mono"
-              style={{ borderColor: `${rarityColor[item.rarity]}50`, color: rarityColor[item.rarity], background: `${rarityColor[item.rarity]}08` }}>
-              <span>{item.name}</span>
-              <span className="text-gray-600">{item.chance}</span>
-            </div>
-          ))}
+      {selected !== null && (
+        <div>
+          <div className="text-xs text-gray-500 font-mono tracking-widest mb-3">СОДЕРЖИМОЕ КЕЙСА</div>
+          <div className="flex flex-wrap gap-2">
+            {poolItems.map((item, i) => (
+              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-sm border text-xs font-mono"
+                style={{ borderColor: `${rarityColor[item.rarity]}50`, color: rarityColor[item.rarity], background: `${rarityColor[item.rarity]}08` }}>
+                {'emoji' in item && <span>{(item as { emoji?: string }).emoji}</span>}
+                <span>{item.name}</span>
+                <span className="text-gray-600">{item.chance}</span>
+              </div>
+            ))}
+          </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Донат (только для создателя) ────────────────────────────────────────────
+
+const CREATOR_CODE = 'spectre2024';
+
+const DONATE_PACKS = [
+  { label: '500 SP', amount: 500, price: '79₽', bonus: '' },
+  { label: '1 500 SP', amount: 1500, price: '199₽', bonus: '+200 БОНУС' },
+  { label: '3 000 SP', amount: 3000, price: '349₽', bonus: '+500 БОНУС' },
+  { label: '6 500 SP', amount: 6500, price: '699₽', bonus: '+1 000 БОНУС' },
+  { label: '13 500 SP', amount: 13500, price: '1 299₽', bonus: '+2 500 БОНУС' },
+  { label: '30 000 SP', amount: 30000, price: '2 499₽', bonus: '+7 000 БОНУС' },
+];
+
+function TabDonate({ balance, setBalance }: { balance: number; setBalance: React.Dispatch<React.SetStateAction<number>> }) {
+  const [isCreator, setIsCreator] = useState(false);
+  const [codeInput, setCodeInput] = useState('');
+  const [codeError, setCodeError] = useState(false);
+  const [customAmount, setCustomAmount] = useState('');
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const tryCode = () => {
+    if (codeInput.trim().toLowerCase() === CREATOR_CODE) {
+      setIsCreator(true);
+      setCodeError(false);
+    } else {
+      setCodeError(true);
+      setTimeout(() => setCodeError(false), 1500);
+    }
+  };
+
+  const addCustom = () => {
+    const n = parseInt(customAmount.replace(/\D/g, ''), 10);
+    if (!n || n <= 0) return;
+    setBalance(b => b + n);
+    showToast(`+${n.toLocaleString()} SP добавлено на баланс`);
+    setCustomAmount('');
+  };
+
+  const buyPack = (amount: number, label: string) => {
+    setBalance(b => b + amount);
+    showToast(`+${amount.toLocaleString()} SP — ${label} зачислено!`);
+  };
+
+  return (
+    <div className="tab-panel min-h-screen p-6 space-y-6">
+      {toast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-sm bg-[#3DB87A] text-white font-bebas text-lg tracking-widest shadow-lg animate-fade-in">
+          ✓ {toast}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-xs text-gray-500 font-mono tracking-widest mb-1">// ПОПОЛНЕНИЕ</div>
+          <h2 className="font-bebas text-4xl tracking-widest text-white">ДОНАТ</h2>
+        </div>
+        <div className="flex items-center gap-3 border border-[#C8A94A]/30 px-4 py-2 rounded-sm bg-[#C8A94A]/5">
+          <Icon name="Coins" size={18} className="text-[#C8A94A]" />
+          <span className="font-bebas text-2xl tracking-widest text-[#C8A94A]">{balance.toLocaleString()}</span>
+          <span className="text-xs text-gray-500 font-mono">SP</span>
+        </div>
+      </div>
+
+      {/* Стандартные пакеты */}
+      <div className="grid grid-cols-3 gap-4">
+        {DONATE_PACKS.map(pack => (
+          <div key={pack.amount} className="border border-white/10 rounded-sm p-5 bg-[#0D1117] hover:border-[#C8A94A]/30 transition-all group relative overflow-hidden">
+            {pack.bonus && (
+              <div className="absolute top-0 right-0 px-2 py-0.5 text-[10px] font-mono font-bold bg-[#3DB87A] text-white tracking-widest">
+                {pack.bonus}
+              </div>
+            )}
+            <div className="font-bebas text-3xl text-[#C8A94A] tracking-widest mb-1">{pack.label}</div>
+            <div className="text-xs text-gray-500 font-mono mb-4">SPECTRE POINTS</div>
+            <button onClick={() => buyPack(pack.amount, pack.label)}
+              className="w-full py-2 bg-[#C8A94A] text-[#080B10] font-bebas tracking-widest hover:bg-[#E8C96A] transition-all active:scale-95 text-sm">
+              {pack.price}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Панель создателя */}
+      <div className={`border rounded-sm p-6 transition-all ${isCreator ? 'border-[#D94040]/50 bg-[#D94040]/5' : 'border-white/10 bg-[#0D1117]'}`}>
+        {!isCreator ? (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Icon name="Lock" size={16} className="text-gray-500" />
+              <span className="text-xs text-gray-500 font-mono tracking-widest">ДОСТУП ОГРАНИЧЕН</span>
+            </div>
+            <div className="text-sm text-gray-400 font-mono mb-4">Введите код создателя для получения расширенного доступа</div>
+            <div className="flex gap-3">
+              <input
+                type="password"
+                value={codeInput}
+                onChange={e => setCodeInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && tryCode()}
+                placeholder="Код создателя..."
+                className={`flex-1 bg-[#080B10] border rounded-sm px-4 py-2 text-sm font-mono text-white placeholder-gray-600 focus:outline-none transition-all ${codeError ? 'border-[#D94040] animate-pulse' : 'border-white/10 focus:border-[#C8A94A]/50'}`}
+              />
+              <button onClick={tryCode}
+                className="px-6 py-2 border border-white/20 text-gray-300 font-bebas tracking-widest text-sm hover:border-[#C8A94A]/40 hover:text-[#C8A94A] transition-all">
+                ВОЙТИ
+              </button>
+            </div>
+            {codeError && <div className="text-xs text-[#D94040] font-mono mt-2">Неверный код</div>}
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-8 h-8 rounded-sm bg-[#D94040]/20 border border-[#D94040]/40 flex items-center justify-center">
+                <Icon name="Crown" size={16} className="text-[#D94040]" />
+              </div>
+              <div>
+                <div className="font-bebas text-lg tracking-widest text-[#D94040]">РЕЖИМ СОЗДАТЕЛЯ</div>
+                <div className="text-xs text-gray-500 font-mono">Полный доступ активирован</div>
+              </div>
+              <button onClick={() => setIsCreator(false)} className="ml-auto text-xs text-gray-600 hover:text-gray-400 font-mono">выйти</button>
+            </div>
+
+            <div className="text-xs text-gray-500 font-mono tracking-widest mb-3">ПРОИЗВОЛЬНОЕ ПОПОЛНЕНИЕ</div>
+            <div className="flex gap-3 mb-4">
+              <input
+                type="number"
+                value={customAmount}
+                onChange={e => setCustomAmount(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addCustom()}
+                placeholder="Введите сумму SP..."
+                min={1}
+                className="flex-1 bg-[#080B10] border border-[#D94040]/30 rounded-sm px-4 py-3 text-lg font-bebas tracking-widest text-[#C8A94A] placeholder-gray-700 focus:outline-none focus:border-[#D94040]/60"
+              />
+              <button onClick={addCustom}
+                className="px-8 py-3 bg-[#D94040] text-white font-bebas text-lg tracking-widest hover:bg-[#F05050] transition-all active:scale-95">
+                + ДОБАВИТЬ
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {[1000, 5000, 10000, 50000, 100000, 999999].map(n => (
+                <button key={n} onClick={() => { setBalance(b => b + n); showToast(`+${n.toLocaleString()} SP добавлено`); }}
+                  className="px-4 py-1.5 border border-[#D94040]/30 rounded-sm text-sm font-bebas tracking-wider text-[#D94040] hover:bg-[#D94040]/10 transition-all active:scale-95">
+                  +{n.toLocaleString()}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -704,7 +880,7 @@ function TabRating() {
 
 // ─── Главный компонент ───────────────────────────────────────────────────────
 
-type Tab = 'home' | 'battle' | 'cases' | 'inventory' | 'market' | 'rating';
+type Tab = 'home' | 'battle' | 'cases' | 'inventory' | 'market' | 'rating' | 'donate';
 
 const NAV_ITEMS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home',      label: 'ГЛАВНАЯ',   icon: 'Home' },
@@ -713,10 +889,12 @@ const NAV_ITEMS: { id: Tab; label: string; icon: string }[] = [
   { id: 'inventory', label: 'ИНВЕНТАРЬ', icon: 'Shield' },
   { id: 'market',    label: 'МАРКЕТ',    icon: 'ShoppingCart' },
   { id: 'rating',    label: 'РЕЙТИНГ',   icon: 'Trophy' },
+  { id: 'donate',    label: 'ДОНАТ',     icon: 'CreditCard' },
 ];
 
 export default function Index() {
   const [tab, setTab] = useState<Tab>('home');
+  const [balance, setBalance] = useState(12500);
 
   return (
     <div className="scanlines min-h-screen bg-[#080B10] text-white" style={{ fontFamily: 'Roboto, sans-serif' }}>
@@ -733,7 +911,7 @@ export default function Index() {
         <div className="flex items-center gap-1">
           {NAV_ITEMS.map(n => (
             <button key={n.id} onClick={() => setTab(n.id)}
-              className={`nav-btn flex items-center gap-2 px-4 py-2 text-xs font-mono text-gray-400 hover:text-white transition-colors ${tab === n.id ? 'active' : ''}`}>
+              className={`nav-btn flex items-center gap-2 px-4 py-2 text-xs font-mono hover:text-white transition-colors ${tab === n.id ? 'active text-[#C8A94A]' : n.id === 'donate' ? 'text-[#C8A94A]/70 hover:text-[#C8A94A]' : 'text-gray-400'}`}>
               <Icon name={n.icon as string} size={14} fallback="Home" />
               {n.label}
             </button>
@@ -743,10 +921,11 @@ export default function Index() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
             <Icon name="Coins" size={16} className="text-[#C8A94A]" />
-            <span className="font-bebas text-lg tracking-widest text-[#C8A94A]">12,500</span>
+            <span className="font-bebas text-lg tracking-widest text-[#C8A94A]">{balance.toLocaleString()}</span>
             <span className="text-xs text-gray-500 font-mono">SP</span>
           </div>
-          <button className="px-3 py-1.5 bg-[#C8A94A] text-[#080B10] font-bebas tracking-widest text-sm hover:bg-[#E8C96A] transition-all active:scale-95">
+          <button onClick={() => setTab('donate')}
+            className="px-3 py-1.5 bg-[#C8A94A] text-[#080B10] font-bebas tracking-widest text-sm hover:bg-[#E8C96A] transition-all active:scale-95">
             + ПОПОЛНИТЬ
           </button>
           <div className="w-8 h-8 rounded-sm bg-[#1A2030] flex items-center justify-center border border-white/10">
@@ -758,10 +937,11 @@ export default function Index() {
       <main className="relative">
         {tab === 'home'      && <TabHome onPlay={() => setTab('battle')} />}
         {tab === 'battle'    && <TabBattle />}
-        {tab === 'cases'     && <TabCases />}
+        {tab === 'cases'     && <TabCases balance={balance} setBalance={setBalance} />}
         {tab === 'inventory' && <TabInventory />}
         {tab === 'market'    && <TabMarket />}
         {tab === 'rating'    && <TabRating />}
+        {tab === 'donate'    && <TabDonate balance={balance} setBalance={setBalance} />}
       </main>
     </div>
   );
