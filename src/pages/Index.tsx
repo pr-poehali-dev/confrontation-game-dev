@@ -922,7 +922,11 @@ function TabSettings() {
     setTimeout(() => setToast(null), 3500);
   };
 
+  const [downloading, setDownloading] = useState(false);
+  const [dlProgress, setDlProgress] = useState(0);
+
   const handleInstall = async () => {
+    // Сначала пробуем нативный PWA prompt
     if (deferredPrompt) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const prompt = deferredPrompt as any;
@@ -933,20 +937,58 @@ function TabSettings() {
         setDeferredPrompt(null);
         showToast('SPECTRE установлен на рабочий стол!');
       }
-    } else {
-      // Инструкция для ручной установки
-      const ua = navigator.userAgent;
-      const isIOS = /iPad|iPhone|iPod/.test(ua);
-      const isAndroid = /Android/.test(ua);
-      if (isIOS) {
-        showToast('Нажми «Поделиться» → «На экран Домой» в Safari');
-      } else if (isAndroid) {
-        showToast('Нажми ⋮ → «Добавить на главный экран» в браузере');
-      } else {
-        showToast('Нажми ⋮ → «Установить приложение» в Chrome');
-      }
-      setInstallState('unsupported');
+      return;
     }
+
+    // Запускаем скачивание APK/shortcut через браузер
+    setDownloading(true);
+    setDlProgress(0);
+
+    // Анимируем прогресс
+    const steps = [5, 15, 28, 44, 61, 75, 88, 96, 100];
+    for (let i = 0; i < steps.length; i++) {
+      await new Promise(r => setTimeout(r, 300 + Math.random() * 400));
+      setDlProgress(steps[i]);
+    }
+
+    // Создаём HTML-файл ярлыка, который браузер скачивает в папку «Загрузки»
+    const shortcutHtml = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPECTRE — Tactical Combat</title>
+<meta http-equiv="refresh" content="0; url=${window.location.href}">
+<style>
+  body { margin:0; background:#080B10; display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:'Roboto',sans-serif; }
+  .wrap { text-align:center; color:#fff; }
+  .logo { font-size:64px; font-weight:900; letter-spacing:0.3em; color:#C8A94A; margin-bottom:8px; }
+  .sub { color:#555; font-size:13px; margin-bottom:24px; }
+  a { display:inline-block; padding:14px 40px; background:#C8A94A; color:#080B10; text-decoration:none; font-weight:700; font-size:16px; letter-spacing:0.1em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">SPECTRE</div>
+  <div class="sub">Тактический шутер нового поколения</div>
+  <a href="${window.location.href}">▶ ЗАПУСТИТЬ ИГРУ</a>
+</div>
+</body>
+</html>`;
+
+    const blob = new Blob([shortcutHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'SPECTRE-Game.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setDownloading(false);
+    setInstallState('installed');
+    showToast('Файл скачан! Открой из «Загрузок» на телефоне.');
   };
 
   const Toggle = ({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) => (
@@ -1034,22 +1076,36 @@ function TabSettings() {
             </div>
 
             <div className="flex flex-col items-end gap-3 flex-shrink-0">
-              {installState === 'installed' ? (
+              {installState === 'installed' && !downloading ? (
                 <div className="flex items-center gap-2 px-6 py-3 border border-[#3DB87A]/40 rounded-sm bg-[#3DB87A]/10">
                   <Icon name="CheckCircle" size={18} className="text-[#3DB87A]" />
-                  <span className="font-bebas tracking-widest text-[#3DB87A]">УСТАНОВЛЕНО</span>
+                  <span className="font-bebas tracking-widest text-[#3DB87A]">СКАЧАНО ✓</span>
+                </div>
+              ) : downloading ? (
+                <div className="w-56">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-mono text-gray-400">SPECTRE-Game.html</span>
+                    <span className="font-bebas text-lg text-[#C8A94A] tracking-widest">{dlProgress}%</span>
+                  </div>
+                  <div className="h-2 bg-[#1A2030] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#C8A94A] rounded-full transition-all duration-300"
+                      style={{ width: `${dlProgress}%`, boxShadow: '0 0 8px rgba(200,169,74,0.6)' }} />
+                  </div>
+                  <div className="text-[10px] text-gray-600 font-mono mt-1.5">
+                    {dlProgress < 100 ? '⬇ Скачивание...' : '✓ Готово!'}
+                  </div>
                 </div>
               ) : (
-                <button onClick={handleInstall}
-                  className="corner-dec flex items-center gap-3 px-8 py-4 bg-[#C8A94A] text-[#080B10] font-bebas text-lg tracking-[0.15em] hover:bg-[#E8C96A] transition-all active:scale-95 hover:shadow-[0_0_30px_rgba(200,169,74,0.5)]">
+                <button onClick={handleInstall} disabled={downloading}
+                  className="corner-dec relative overflow-hidden flex items-center gap-3 px-8 py-4 bg-[#C8A94A] text-[#080B10] font-bebas text-lg tracking-[0.15em] hover:bg-[#E8C96A] transition-all active:scale-95 hover:shadow-[0_0_30px_rgba(200,169,74,0.5)] disabled:opacity-50">
                   <Icon name="Download" size={20} />
                   СКАЧАТЬ ИГРУ
                 </button>
               )}
               <div className="text-[10px] text-gray-600 font-mono text-right">
-                {installState === 'available' ? '🟢 Готово к установке' :
-                 installState === 'installed' ? '🟢 Уже установлено' :
-                 '📱 Следуй инструкции браузера'}
+                {installState === 'available' ? '🟢 PWA: готово к установке' :
+                 installState === 'installed' ? '🟢 Файл в папке «Загрузки»' :
+                 '📱 Файл появится в «Загрузках»'}
               </div>
             </div>
           </div>
