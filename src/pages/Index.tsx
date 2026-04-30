@@ -31,9 +31,18 @@ const MAPS = [
 ];
 
 const CASES = [
-  { id: 1, name: 'ОПЕРАЦИЯ ШТОРМ', price: 349, img: WEAPONS_IMG, items: 50 },
-  { id: 2, name: 'ЭЛИТА СПЕЦНАЗА', price: 499, img: WEAPONS_IMG, items: 35 },
-  { id: 3, name: 'МИФИЧЕСКИЙ АРСЕНАЛ', price: 799, img: WEAPONS_IMG, items: 20 },
+  { id: 1, name: 'ОПЕРАЦИЯ ШТОРМ', price: 349, img: WEAPONS_IMG, items: 50, type: 'weapons' },
+  { id: 2, name: 'ЭЛИТА СПЕЦНАЗА', price: 499, img: WEAPONS_IMG, items: 35, type: 'weapons' },
+  { id: 3, name: 'МИФИЧЕСКИЙ АРСЕНАЛ', price: 799, img: WEAPONS_IMG, items: 20, type: 'weapons' },
+  { id: 4, name: 'ЭЛИТНЫЕ АГЕНТЫ', price: 10000, img: AGENT_IMG, items: 5, type: 'agents' },
+];
+
+const AGENT_CASE_ITEMS = [
+  { id: 1, name: 'Агент: РЕЙДЕР АЛЬФА', rarity: 'legendary', chance: '25%', emoji: '🪖' },
+  { id: 2, name: 'Агент: ПРИЗРАК НОЧИ', rarity: 'mythic', chance: '10%', emoji: '👻' },
+  { id: 3, name: 'Агент: СТРАЖ СТАЛИ', rarity: 'epic', chance: '30%', emoji: '🛡️' },
+  { id: 4, name: 'Агент: ТЕНЬ ВОЙНЫ', rarity: 'legendary', chance: '25%', emoji: '🌑' },
+  { id: 5, name: 'Агент: КОМАНДИР', rarity: 'mythic', chance: '10%', emoji: '⭐' },
 ];
 
 const CASE_ITEMS = [
